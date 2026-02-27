@@ -2,31 +2,31 @@ name: 每日天气推送（香港时间早上8点）
 
 on:
   schedule:
-    - cron: '0 0 * * *'  # UTC 00:00 = 香港/北京时间 08:00，每天自动运行一次
-  workflow_dispatch:     # 允许手动触发测试（很重要，先用这个测试）
+    - cron: '0 0 * * *'  # UTC 00:00 = 香港/北京时间 08:00
+  workflow_dispatch:     # 允许手动测试
 
 jobs:
-  push-weather:
+  run-push:
     runs-on: ubuntu-latest
 
     steps:
-      - name: 拉取仓库代码
+      - name: 拉取代码
         uses: actions/checkout@v4
 
-      - name: 设置 Python 环境
+      - name: 设置 Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.11'  # 推荐 3.11 或 3.10，你的代码兼容
+          python-version: '3.11'
 
       - name: 安装依赖
         run: |
           python -m pip install --upgrade pip
-          pip install -r requirements.txt  # 你的 requirements.txt 已上传
+          pip install -r requirements.txt
 
-      - name: 运行推送脚本
+      - name: 执行 main.py
         env:
           WEATHER_API_KEY: ${{ secrets.WEATHER_API_KEY }}
-          # 如果代码里用了 os.getenv("APP_ID") 等，也在这里加
+          # 如果你的 main.py 里用了 os.getenv("APP_ID") 等，也在这里加
           # APP_ID: ${{ secrets.APP_ID }}
           # APP_SECRET: ${{ secrets.APP_SECRET }}
         run: python main.py

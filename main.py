@@ -24,15 +24,22 @@ timetable_template_id = ""
 def get_weather(my_city):
     import os
 
-    api_key = os.getenv("WEATHER_API_KEY") or "664f4944290ca50999bbda346bae5a13"  # 本地测试用你的Key，GitHub用secrets
+    # 临时硬编码新 Key（本地测试用，测试完注释掉或删除这行）
+    api_key = "6801c91aa4ebf3a66c1664fc0caa7d36" # ← 把你的新 Key 粘贴在这里，不要有空格或换行
 
-    adcode = "410423"  # 鲁山县
+    # 正式用 secrets（测试完恢复这行）
+    # api_key = os.getenv("WEATHER_API_KEY")
+    # if not api_key:
+    #     print("错误：未找到 WEATHER_API_KEY")
+    #     return "鲁山县", "获取失败", "未知", "未知风"
+
+    adcode = "410423"  # 鲁山县正确 adcode
 
     url = f"https://restapi.amap.com/v3/weather/weatherInfo?key={api_key}&city={adcode}&extensions=all"
 
     try:
-        resp = requests.get(url, timeout=10).json()
-        print("高德API完整响应:", resp)  # 保留调试
+        resp = requests.get(url, timeout=10, verify=False).json()
+        print("高德API完整响应:", resp)  # 调试用，看返回什么
 
         if resp.get("status") != "1":
             print("API错误:", resp.get("info"))
@@ -43,19 +50,20 @@ def get_weather(my_city):
         wind_str = "未知风"
         temp_range = "暂无数据"
 
-        # 优先尝试实时 (lives)
+        # 优先实时
         if "lives" in resp and resp["lives"]:
             live = resp["lives"][0]
             weather_desc = live.get("weather", "未知")
             wind_str = f"{live.get('winddirection', '未知')}风 {live.get('windpower', '未知')}级"
             current_temp = live.get("temperature", "未知")
             temp_range = f"{current_temp}℃ (实时)"
+
         else:
             print("无实时数据(lives缺失)，使用预报模拟")
 
-        # 用预报补充（总是可用）
+        # 预报补充
         if "forecasts" in resp and resp["forecasts"]:
-            today = resp["forecasts"][0]["casts"][0]  # 今天
+            today = resp["forecasts"][0]["casts"][0]
             weather_desc = today.get("dayweather", weather_desc)  # 白天天气优先
             wind_str = f"{today.get('daywind', '未知')}风 {today.get('daypower', '未知')}级"
             temp_range = f"{today['nighttemp']}～{today['daytemp']}℃"

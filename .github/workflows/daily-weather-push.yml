@@ -2,7 +2,7 @@ name: 每日天气推送（香港时间早上8点）
 
 on:
   schedule:
-    - cron: '0 0 * * *'  # UTC 00:00 = 香港/北京时间 08:00
+    - cron: cron: '30 23 * * *'  # UTC 00:00 = 香港/北京时间 08:00
   workflow_dispatch:     # 允许手动测试
 
 jobs:
